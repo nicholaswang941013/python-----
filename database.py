@@ -6,7 +6,7 @@ def create_connection():
     """建立資料庫連接"""
     conn = None
     try:
-        conn = sqlite3.connect('users.db')
+        conn = sqlite3.connect('requirement.db')
         return conn
     except Error as e:
         print(e)

@@ -232,7 +232,7 @@ python reqmgr.py --format csv user list
 ```yaml
 # reqmgr.yaml
 database:
-  path: "./users.db"
+  path: "./requirement.db"
 
 auth:
   session_timeout: 3600

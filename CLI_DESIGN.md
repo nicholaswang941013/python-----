@@ -261,7 +261,7 @@ id,title,status,priority,assignee,created_at
 ### 配置文件格式
 ```yaml
 database:
-  path: "./users.db"
+  path: "./requirement.db"
   
 auth:
   session_timeout: 3600

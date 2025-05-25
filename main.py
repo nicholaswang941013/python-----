@@ -19,7 +19,7 @@ import sqlite3
 # 檢查資料庫是否存在，如果不存在則從 schema.sql 創建
 def initialize_database_from_schema():
     """從 schema.sql 初始化資料庫"""
-    db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+    db_path = os.path.join(os.path.dirname(__file__), 'requirement.db')
     schema_path = os.path.join(os.path.dirname(__file__), 'schema.sql')
     
     # 如果資料庫已存在，直接返回

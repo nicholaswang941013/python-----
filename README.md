@@ -96,7 +96,7 @@ python main.py
 ## 系統維護
 
 ### 數據庫備份
-系統使用 SQLite 數據庫，建議定期備份 `users.db` 文件。
+系統使用 SQLite 數據庫，建議定期備份 `requirement.db` 文件。
 
 ### 日誌管理
 系統運行日誌保存在程序運行目錄下，可用於故障排查。
@@ -132,7 +132,7 @@ requirement-management-system/
 ├── auth.py             # 用戶認證
 ├── models.py           # 數據模型
 ├── registration/       # 註冊相關功能
-├── users.db           # SQLite數據庫文件
+├── requirement.db           # SQLite數據庫文件
 └── schema.sql         # 數據庫結構定義
 ```
 

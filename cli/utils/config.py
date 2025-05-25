@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 # 預設配置
 DEFAULT_CONFIG = {
     'database': {
-        'path': './users.db'
+        'path': './requirement.db'
     },
     'auth': {
         'session_timeout': 3600,  # 1小時
@@ -187,7 +187,7 @@ def get_database_path(config: Dict[str, Any]) -> str:
     Returns:
         str: 資料庫文件路徑
     """
-    db_path = config.get('database', {}).get('path', './users.db')
+    db_path = config.get('database', {}).get('path', './requirement.db')
     
     # 如果是相對路徑，轉換為絕對路徑
     if not os.path.isabs(db_path):

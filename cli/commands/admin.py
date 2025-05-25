@@ -353,12 +353,12 @@ def backup_command(ctx, output):
         import os
         
         # 檢查源數據庫是否存在
-        if not os.path.exists('users.db'):
-            error_message("找不到數據庫文件 users.db")
+        if not os.path.exists('requirement.db'):
+            error_message("找不到數據庫文件 requirement.db")
             sys.exit(1)
         
         # 連接到源數據庫
-        source_conn = sqlite3.connect('users.db')
+        source_conn = sqlite3.connect('requirement.db')
         
         # 創建備份
         with open(output, 'w', encoding='utf-8') as f:
