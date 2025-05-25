@@ -181,9 +181,13 @@ def create_requirement(conn, title, description, assigner_id, assignee_id, prior
 
 def get_all_staff(conn):
     """獲取所有員工列表 (排除管理員)"""
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, name FROM users WHERE role = 'staff'")
-    return cursor.fetchall()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE role = 'staff' ORDER BY id")
+        return cursor.fetchall()
+    except Error as e:
+        print(f"獲取員工列表時發生錯誤: {e}")
+        return []
 
 def get_user_requirements(conn, user_id):
     """獲取指定用戶收到的需求單 (只顯示已發派的)"""
@@ -349,7 +353,7 @@ def submit_requirement(conn, req_id, comment):
         
         cursor.execute('''
             UPDATE requirements
-            SET status = 'reviewing', comment = ?, completed_at = ?
+            SET status = 'submitted', comment = ?, completed_at = ?
             WHERE id = ? AND status = 'pending'
         ''', (comment, current_time, req_id))
         
@@ -375,7 +379,7 @@ def approve_requirement(conn, req_id):
         cursor.execute('''
             UPDATE requirements
             SET status = 'completed'
-            WHERE id = ? AND status = 'reviewing'
+            WHERE id = ? AND status = 'submitted'
         ''', (req_id,))
         
         conn.commit()
@@ -400,7 +404,7 @@ def reject_requirement(conn, req_id):
         cursor.execute('''
             UPDATE requirements
             SET status = 'pending', comment = NULL, completed_at = NULL
-            WHERE id = ? AND status = 'reviewing'
+            WHERE id = ? AND status = 'submitted'
         ''', (req_id,))
         
         conn.commit()
@@ -515,26 +519,135 @@ def restore_requirement(conn, req_id):
         return False
 
 def get_deleted_requirements(conn, admin_id):
-    """獲取管理員已刪除的需求單
-    
-    Args:
-        conn: 數據庫連接
-        admin_id: 管理員ID
-        
-    Returns:
-        list: 刪除的需求單列表
-    """
+    """獲取已刪除的需求單 (管理員功能)"""
     try:
         cursor = conn.cursor()
         cursor.execute('''
             SELECT r.id, r.title, r.description, r.status, r.priority, r.created_at, 
-                   u.name as assignee_name, u.id as assignee_id, r.deleted_at, r.comment
+                   u1.name as assigner_name, u2.name as assignee_name, r.deleted_at
             FROM requirements r
-            JOIN users u ON r.assignee_id = u.id
+            JOIN users u1 ON r.assigner_id = u1.id
+            JOIN users u2 ON r.assignee_id = u2.id
             WHERE r.assigner_id = ? AND r.is_deleted = 1
             ORDER BY r.deleted_at DESC
         ''', (admin_id,))
         return cursor.fetchall()
     except Error as e:
-        print(e)
-        return [] 
+        print(f"獲取已刪除需求單時發生錯誤: {e}")
+        return []
+
+# 添加缺少的用戶管理函數
+
+def get_all_users(conn):
+    """獲取所有用戶列表"""
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users ORDER BY id")
+        return cursor.fetchall()
+    except Error as e:
+        print(f"獲取用戶列表時發生錯誤: {e}")
+        return []
+
+def get_all_admins(conn):
+    """獲取所有管理員列表"""
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE role = 'admin' ORDER BY id")
+        return cursor.fetchall()
+    except Error as e:
+        print(f"獲取管理員列表時發生錯誤: {e}")
+        return []
+
+def get_user_by_id(conn, user_id):
+    """根據用戶ID獲取用戶資料"""
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+        return cursor.fetchone()
+    except Error as e:
+        print(f"獲取用戶資料時發生錯誤: {e}")
+        return None
+
+def create_user(conn, username, password, name, email, role='staff'):
+    """創建新用戶
+    
+    Args:
+        conn: 資料庫連接
+        username: 用戶名
+        password: 密碼
+        name: 真實姓名
+        email: 電子郵件
+        role: 角色 ('admin' 或 'staff')
+        
+    Returns:
+        int: 新用戶ID，失敗返回None
+    """
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO users (username, password, name, email, role) VALUES (?, ?, ?, ?, ?)",
+            (username, password, name, email, role)
+        )
+        conn.commit()
+        return cursor.lastrowid
+    except Error as e:
+        print(f"創建用戶時發生錯誤: {e}")
+        return None
+
+def update_user(conn, user_id, **kwargs):
+    """更新用戶信息
+    
+    Args:
+        conn: 資料庫連接
+        user_id: 用戶ID
+        **kwargs: 要更新的字段 (name, email, password, role)
+        
+    Returns:
+        bool: 是否更新成功
+    """
+    try:
+        if not kwargs:
+            return False
+            
+        # 構建更新語句
+        update_fields = []
+        params = []
+        
+        for field, value in kwargs.items():
+            if field in ['name', 'email', 'password', 'role']:
+                update_fields.append(f"{field} = ?")
+                params.append(value)
+        
+        if not update_fields:
+            return False
+            
+        params.append(user_id)
+        
+        cursor = conn.cursor()
+        update_sql = f"UPDATE users SET {', '.join(update_fields)} WHERE id = ?"
+        cursor.execute(update_sql, params)
+        conn.commit()
+        
+        return cursor.rowcount > 0
+    except Error as e:
+        print(f"更新用戶信息時發生錯誤: {e}")
+        return False
+
+def delete_user(conn, user_id):
+    """刪除用戶
+    
+    Args:
+        conn: 資料庫連接
+        user_id: 用戶ID
+        
+    Returns:
+        bool: 是否刪除成功
+    """
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+    except Error as e:
+        print(f"刪除用戶時發生錯誤: {e}")
+        return False 

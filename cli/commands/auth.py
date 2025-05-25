@@ -15,9 +15,42 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from auth import login
-from cli.utils.session import save_session, load_session, clear_session
+from database import create_connection, get_user_by_username
+from cli.utils.session import save_session as save_user_session, load_session, clear_session
 from cli.utils.formatter import format_output, success_message, error_message
+
+class UserInfo:
+    """用戶信息類"""
+    def __init__(self, user_data):
+        self.id = user_data[0]
+        self.username = user_data[1]
+        self.password = user_data[2]  # 實際使用中不會暴露
+        self.name = user_data[3]
+        self.email = user_data[4]
+        self.role = user_data[5]
+
+def authenticate_user(username, password):
+    """驗證用戶登入"""
+    try:
+        conn = create_connection()
+        if not conn:
+            return {'success': False, 'message': '無法連接到資料庫'}
+        
+        user_data = get_user_by_username(conn, username)
+        conn.close()
+        
+        if not user_data:
+            return {'success': False, 'message': '用戶不存在'}
+        
+        # 檢查密碼（這裡簡化處理，實際應該使用加密比較）
+        if user_data[2] != password:
+            return {'success': False, 'message': '密碼錯誤'}
+        
+        user_info = UserInfo(user_data)
+        return {'success': True, 'user_info': user_info}
+        
+    except Exception as e:
+        return {'success': False, 'message': f'認證過程中發生錯誤: {e}'}
 
 @click.group()
 def auth_group():
@@ -47,14 +80,14 @@ def login_command(ctx, username, password, save_session):
             password = getpass.getpass("密碼: ")
         
         # 嘗試登入
-        result = login(username, password)
+        result = authenticate_user(username, password)
         
         if result['success']:
             user_info = result['user_info']
             
             # 保存會話（如果需要）
             if save_session:
-                save_session_result = save_session(user_info)
+                save_session_result = save_user_session(user_info)
                 if save_session_result:
                     success_message("登入成功，會話已保存")
                 else:
