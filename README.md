@@ -1,146 +1,144 @@
-# 需求管理系統
+# Requirement Management System 需求管理系統
 
-這是一個使用 Python/Tkinter 開發的需求管理系統，允許管理員創建和分派需求單給員工，員工可以查看和回應他們收到的需求單。
+一套以 Python/Tkinter 開發，支援多用戶、權限控管、需求單分派與追蹤的現代化需求管理系統，適用於中小企業或團隊。
+
+專案倉庫：[https://github.com/nicholaswang941013/python-project](https://github.com/nicholaswang941013/python-project)
+
+---
+
+## 目錄
+- [專案簡介](#專案簡介)
+- [系統特點](#系統特點)
+- [主要功能](#主要功能)
+- [技術架構](#技術架構)
+- [專案結構](#專案結構)
+- [安裝與執行](#安裝與執行)
+- [依賴說明](#依賴說明)
+- [預設用戶](#預設用戶)
+- [使用指南](#使用指南)
+- [測試方式](#測試方式)
+- [系統維護](#系統維護)
+- [常見問題](#常見問題)
+- [最近更新](#最近更新)
+- [貢獻指南](#貢獻指南)
+- [授權協議](#授權協議)
+
+---
+
+## 專案簡介
+本系統提供管理員與員工兩種角色，支援需求單的建立、分派、追蹤、審核與統計，並具備即時通知與多線程處理能力。
 
 ## 系統特點
-
-- 使用 Python 3.x 和 Tkinter 開發的現代化 GUI 應用
-- 採用 SQLite 數據庫進行數據持久化存儲
-- 支持多線程處理預約發派功能
-- 完整的用戶權限管理系統
-- 即時通知系統
-- 響應式界面設計
+- Python 3.x + Tkinter GUI
+- SQLite3 資料庫持久化
+- 多線程預約發派
+- 權限分級管理
+- 即時通知
+- CLI 與 GUI 雙模式（如有 CLI）
+- 易於擴充與維護
 
 ## 主要功能
+### 管理員
+- 發派/預約需求單給員工
+- 查看/審核/刪除需求單
+- 員工帳號管理
+- 系統通知
 
-1. **管理員功能**:
-   - 發派需求單給特定員工
-   - 預約發派需求單
-   - 查看所有已發派的需求單
-   - 審核員工提交的需求單
-   - 管理刪除的需求單
-   - 查看系統通知
-   - 管理員工帳號
-
-2. **員工功能**:
-   - 查看收到的需求單
-   - 提交完成的需求單
-   - 查看需求單的詳細信息
-   - 查看個人工作統計
+### 員工
+- 查看/回應/提交需求單
+- 查看個人工作統計
 
 ## 技術架構
+- 前端：Tkinter、ttk、自定義樣式
+- 後端：Python 3.x、SQLite3、多線程、事件驅動
+- 數據庫：users、requirements、scheduled_requirements
 
-### 前端
-- Tkinter GUI 框架
-- ttk 主題化組件
-- 自定義樣式和布局
+## 專案結構
+```
+requirement-management-system/
+├── main.py                  # 主程序入口 (GUI)
+├── requirement_manager.py   # 需求管理核心邏輯
+├── database.py              # 資料庫操作
+├── auth.py                  # 用戶認證
+├── models.py                # 數據模型
+├── registration/            # 註冊功能模組
+├── cli/                     # CLI 介面與指令
+│   ├── main.py              # CLI 入口
+│   └── commands/            # CLI 指令模組
+├── utils/                   # 工具模組
+├── requirement.db           # SQLite 資料庫
+├── schema.sql               # 資料庫結構定義
+├── requirements.txt         # 依賴套件清單
+└── README.md                # 說明文件
+```
 
-### 後端
-- Python 3.x
-- SQLite3 數據庫
-- 多線程處理
-- 事件驅動架構
-
-### 數據庫設計
-- users 表：用戶管理
-- requirements 表：需求單管理
-- scheduled_requirements 表：預約發派管理
-
-## 安裝和運行
-
+## 安裝與執行
 ### 系統需求
-- Python 3.x
+- Python 3.8 以上
 - SQLite3
-- Tkinter (通常隨 Python 一起安裝)
+- Tkinter（Python 內建）
 
 ### 安裝步驟
 ```bash
 # 克隆專案
-git clone [專案地址]
+git clone https://github.com/nicholaswang941013/python-project.git
 
 # 進入專案目錄
-cd requirement-management-system
+cd python-project
 
 # 安裝依賴
 pip install -r requirements.txt
 
-# 運行程序
+# 啟動 GUI
 python main.py
+
+# 啟動 CLI（如有）
+python cli/main.py
 ```
+
+## 依賴說明
+- Python 3.8+
+- tkinter
+- sqlite3
+- 其他依賴請參考 requirements.txt
 
 ## 預設用戶
-- 管理員: username=`nicholas`, password=`nicholas941013`
-- 員工1: username=`user1`, password=`user123`
-- 員工2: username=`staff1`, password=`staff123`
-- 員工3: username=`staff2`, password=`staff123`
+| 角色   | 帳號         | 密碼           |
+|--------|--------------|----------------|
+| 管理員 | nicholas     | nicholas941013 |
+| 員工1  | user1        | user123        |
+| 員工2  | staff1       | staff123       |
+| 員工3  | staff2       | staff123       |
 
 ## 使用指南
-
-### 管理員操作
+### 管理員
 1. 登入系統
-2. 在需求管理界面可以：
-   - 創建新需求單
-   - 選擇立即發派或預約發派
-   - 設定需求單優先級
-   - 查看所有需求單狀態
-   - 審核員工提交的需求單
+2. 進入需求管理介面，創建/發派/預約需求單
+3. 查看需求單狀態、審核員工提交
+4. 管理員工帳號與系統通知
 
-### 員工操作
+### 員工
 1. 登入系統
-2. 在個人界面可以：
-   - 查看分配給自己的需求單
-   - 提交完成的需求單
-   - 查看需求單詳情
-   - 查看個人工作統計
+2. 查看分配需求單、提交完成、查看統計
+
+## 測試方式
+- 若有自動化測試：
+```bash
+pytest
+```
+- 或手動測試 GUI/CLI 功能
 
 ## 系統維護
+- 資料庫備份：定期備份 `requirement.db`
+- 日誌管理：運行日誌保存在程式目錄下
 
-### 數據庫備份
-系統使用 SQLite 數據庫，建議定期備份 `requirement.db` 文件。
-
-### 日誌管理
-系統運行日誌保存在程序運行目錄下，可用於故障排查。
+## 常見問題
+- 啟動失敗：請確認 Python 版本與依賴已安裝
+- GUI 無法顯示：請確認 Tkinter 已安裝
+- 權限問題：請用管理員帳號登入
 
 ## 最近更新
-
-### 1. 無法刪除需求單問題
-- 問題: 錯誤信息 "TypeError: 'User' object is not subscriptable"
-- 原因: 在 `requirement_manager.py` 中錯誤地使用 `self.current_user[0]` 而不是 `self.current_user.id`
-- 解決方案: 添加 `self.user_id` 屬性，並正確處理不同格式的用戶對象
-
-### 2. 無法發派需求單給新註冊員工問題
-- 問題: 員工下拉選單在界面初始化時只加載一次，沒有刷新機制
-- 解決方案: 添加刷新按鈕和 `refresh_staff_list` 方法，允許管理員手動更新員工列表
-
-### 3. 註冊員工無法查看自己收到的需求單問題
-- 問題: 新註冊的員工登錄後無法看到分配給他們的需求單
-- 原因: 用戶ID處理邏輯不完善，可能在某些情況下無法正確獲取用戶ID
-- 解決方案:
-  - 增強 `RequirementManager.__init__` 中用戶ID的獲取邏輯，支持多種格式的用戶對象
-  - 在 `load_user_requirements` 和 `submit_requirement` 方法中添加用戶ID檢查
-  - 在 `RequirementApp.setup_staff_interface` 中添加用戶對象有效性檢查
-  - 改進沒有需求單時的提示顯示方式
-
-## 開發者信息
-
-### 專案結構
-```
-requirement-management-system/
-├── main.py              # 主程序入口
-├── requirement_manager.py # 需求管理核心邏輯
-├── database.py          # 數據庫操作
-├── auth.py             # 用戶認證
-├── models.py           # 數據模型
-├── registration/       # 註冊相關功能
-├── requirement.db           # SQLite數據庫文件
-└── schema.sql         # 數據庫結構定義
-```
-
-### 代碼規範
-- 遵循 PEP 8 編碼規範
-- 使用類型提示
-- 完整的文檔字符串
-- 模塊化設計
+- 修正需求單刪除、分派、員工查詢等問題，詳見下方更新紀錄
 
 ## 貢獻指南
 1. Fork 專案
@@ -149,4 +147,8 @@ requirement-management-system/
 4. 發起 Pull Request
 
 ## 授權協議
-MIT License 
+MIT License
+
+---
+
+> 本專案由 [yourname] 維護，歡迎貢獻與反饋。
